@@ -2,19 +2,22 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Pivot\BookUser;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Staudenmeir\LaravelMergedRelations\Eloquent\HasMergedRelationships;
 use Staudenmeir\LaravelMergedRelations\Eloquent\Relations\MergedRelation;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasMergedRelationships;
+    use HasApiTokens, HasFactory, Notifiable, HasMergedRelationships, HasRelationships;
 
     /**
      * The attributes that are mass assignable.
@@ -52,11 +55,6 @@ class User extends Authenticatable
             ->using(BookUser::class)
             ->withPivot('status')
             ->withTimestamps();
-    }
-
-    public function friends()
-    {
-        return $this->mergedRelationWithModel(User::class, 'friends_view');
     }
 
     public function addFriend(User $friend)
@@ -111,6 +109,18 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
             ->withPivot('accepted')
             ->withTimestamps();
+    }
+
+    public function friends(): MergedRelation
+    {
+        return $this->mergedRelationWithModel(User::class, 'friends_view');
+    }
+
+    public function booksOfFriends(): HasManyDeep
+    {
+        return $this->hasManyDeepFromRelations($this->friends(), (new User)->books())
+            ->withIntermediate(BookUser::class)
+            ->orderByDesc('__book_user__updated_at');
     }
 
 }

@@ -16,3 +16,6 @@ Route::get('friends', \App\Http\Controllers\FriendIndexController::class);
 Route::post('friends', \App\Http\Controllers\FriendStoreController::class);
 Route::patch('friends/{friend}', \App\Http\Controllers\FriendPatchController::class);
 Route::delete('friends/{friend}', \App\Http\Controllers\FriendDestroyController::class);
+
+
+Route::get('feed', \App\Http\Controllers\FeedIndexController::class);

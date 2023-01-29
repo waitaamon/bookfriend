@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Book extends Model
 {
@@ -11,7 +12,7 @@ class Book extends Model
 
     protected $fillable = ['title', 'author'];
 
-    public function users()
+    public function user(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withPivot('status')->withTimestamps();
     }
